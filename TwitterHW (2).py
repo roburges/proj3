@@ -6,9 +6,9 @@ import json
 import re
 import tweepy
 import twitter_info  # still need this in the same directory, filled out
-yes= 'hello'
-print('hello is:', yes)##let user know running
-# import sys##fixing encoding error
+
+print('welcome')##let user know running
+import sys##fixing encoding error
 def uprint(*objects, sep=' ', end='\n', file=sys.stdout):
     enc = file.encoding
     if enc == 'UTF-8':
@@ -75,7 +75,7 @@ def get_tweets():
 
 # 1 - Make a connection to a new database tweets.sqlite, and create a variable to hold the database cursor.
 print('tests for part 2')
-data=get_tweets()##invoke function loop above
+
 conn=sqlite3.connect('tweets.sqlite')##connect to my database
 cur = conn.cursor()##cursor variable cur
 print('tests for part 2') # let user know new tests
