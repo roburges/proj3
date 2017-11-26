@@ -110,31 +110,31 @@ umich_tweets=get_user_tweets("@umich")
 
 conn=sqlite3.connect('206_APIsAndDBs.sqlite')##connect to my database
 cur = conn.cursor()##cursor variable cur
-cur.execute('DROP TABLE IF EXISTS Tweets')  ## Creates fresh data base if exists, or not
+cur.execute('DROP TABLE IF EXISTS Tweets')
 cur.execute('DROP TABLE IF EXISTS Users')
-cur.execute('CREATE TABLE Users(user_id TEXT PRIMARY KEY, screen_name TEXT,num_favs NUMBER,description TEXT)') ##creates table columns and keys
-cur.execute('CREATE TABLE Tweets(tweet_id TEXT PRIMARY KEY,text TEXT,user_posted TEXT REFERENCES Users(user_id),time_posted DATETIME,retweets NUMBER)')
+cur.execute('CREATE TABLE Users(user_id TEXT PRIMARY KEY, screen_name TEXT,num_favs NUMBER,description TEXT)')
+cur.execute('CREATE TABLE Tweets(tweet_id TEXT PRIMARY KEY,text TEXT,user_posted TEXT REFERENCES Users(user_id),time_posted DATETIME,retweets NUMBER)')##refresh tables if already exists drop
 
 
 for user in umich_tweets:
 	tup = user['user']['id'], user['user']['screen_name'], user['user']['favourites_count'], user['user']['description']
-	cur.execute('INSERT or IGNORE INTO Users (user_id, screen_name,num_favs,description) VALUES (?,?,?,?)', tup)## assign and insert values specific to data
+	cur.execute('INSERT or IGNORE INTO Users (user_id, screen_name,num_favs,description) VALUES (?,?,?,?)', tup)
 
-	mentioned_list = ['umich']## add user mentions to users table screen name list column
+	mentioned_list = ['umich']
 	for mentions in user['entities']['user_mentions']:
 		mentioned_list.append(mentions['screen_name'])
 
-	for mentioned_user in mentioned_list: ## insert mentioned users in Users
+	for mentioned_user in mentioned_list:
 		user_tweets = get_user_tweets(mentioned_user)
 		for tweet in user_tweets:
 			tup2 = tweet['user']['id_str'], tweet['user']['screen_name'], tweet['user']['favourites_count'], tweet['user']['description']
 			cur.execute('INSERT OR IGNORE INTO Users VALUES (?, ?,?,?)', tup2)
 
 for tweet in umich_tweets:
-	tup3 = tweet['id_str'], tweet['text'], tweet['user']['id_str'], tweet['created_at'], tweet['retweet_count']## insert tweets table values
+	tup3 = tweet['id_str'], tweet['text'], tweet['user']['id_str'], tweet['created_at'], tweet['retweet_count']
 	cur.execute('INSERT OR IGNORE INTO Tweets VALUES (?,?,?,?,?)', tup3)
 
-conn.commit()## commit changes to database
+conn.commit()
 
 
 ## Task 3 - Making queries, saving data, fetching data
@@ -144,7 +144,7 @@ conn.commit()## commit changes to database
 
 # Make a query to select all of the records in the Users database.
 # Save the list of tuples in a variable called users_info.
-cur.execute('SELECT * FROM Users')## select all data fetchall pulls to query
+cur.execute('SELECT * FROM Users')
 users_info=cur.fetchall()
 
 # Make a query to select all of the user screen names from the database.
@@ -155,32 +155,32 @@ screen_names = []
 tuppers = cur.execute("SELECT screen_name FROM Users")
 tuppers1=cur.fetchall()
 for itter in tuppers1:
-    screen_names.append(itter[0])## indexes so list does not go out of range and string test
+    screen_names.append(itter[0])
 # Make a query to select all of the tweets (full rows of tweet information)
 # that have been retweeted more than 10 times. Save the result
 # (a list of tuples, or an empty list) in a variable called retweets.
-cur.execute("SELECT * FROM Tweets WHERE retweets>10") ## conditional select query greater than 10
+cur.execute("SELECT * FROM Tweets WHERE retweets>10")
 retweets=cur.fetchall()
 # Make a query to select all the descriptions (descriptions only) of
 # the users who have favorited more than 500 tweets. Access all those
 # strings, and save them in a variable called favorites,
 # which should ultimately be a list of strings.
 favorites = []
-tuppers= cur.execute("SELECT description FROM Users WHERE num_favs>500")## conditional greater than 500 in query for specified table
+tuppers= cur.execute("SELECT description FROM Users WHERE num_favs>500")
 tuppers1=cur.fetchall()
 for Imdoingit in tuppers1:
-    favorites.append(Imdoingit[0])## idex to make data value correct and not out of range
+    favorites.append(Imdoingit[0])
 # Make a query using an INNER JOIN to get a list of tuples with 2
 # elements in each tuple: the user screenname and the text of the
 # tweet. Save the resulting list of tuples in a variable called joined_data.
-cur.execute('''SELECT Users.screen_name, Tweets.text FROM Users INNER JOIN Tweets ON Users.user_id = Tweets.user_posted''')## three quotations to avoid tweets with double quotes error the . allows for selecting column in table, innerjoin joins data from tables and ON passes keyword for join
+cur.execute('''SELECT Users.screen_name, Tweets.text FROM Users INNER JOIN Tweets ON Users.user_id = Tweets.user_posted''')
 joined_data=cur.fetchall()
 
 # Make a query using an INNER JOIN to get a list of tuples with 2
 # elements in each tuple: the user screenname and the text of the
 # tweet in descending order based on retweets. Save the resulting
 # list of tuples in a variable called joined_data2.
-cur.execute('''SELECT Users.screen_name, Tweets.text FROM Users INNER JOIN Tweets ON Users.user_id = Tweets.user_posted ORDER BY Tweets.retweets DESC''') ## triple quotes to avoid strings with them in tweets, ON statement gives values for join on keys , ORDER by orders , DESC makes descending 
+cur.execute('''SELECT Users.screen_name, Tweets.text FROM Users INNER JOIN Tweets ON Users.user_id = Tweets.user_posted ORDER BY Tweets.retweets DESC''')
 joined_data2=cur.fetchall()
 
 
